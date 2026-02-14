@@ -1,8 +1,8 @@
 # EXPERIMENT-03-INTERFACTING-DIGITAL-SENSOR-WITH-EDGE-DEVELOPMENT-BOARD-ULTRASONIC-AND-PIR-SENSOR-(RASPBERRYPI-PI4)
-### NAME 
-### DEPARTMENT 
-### ROLL NO 
-### DATE OF EXPERIMENT 
+### NAME : DHARSHINI S
+### DEPARTMENT : CSE(IOT)
+### ROLL NO : 212223110010 
+### DATE OF EXPERIMENT : 12-02-2026
 
 ### AIM
 To interface a digital sensor (Ultrasonic and PIR) with the Raspberry Pi 4 and control it using Python.
@@ -54,39 +54,152 @@ Connect the Echo pin to any one GPIO.
 Experiment 1B
 The IR sensor is connected one of the GPIO pins in Raspberry Pi 4.
 The Python script sets the PIR sensor value based on the motion detected and shown in Thingspeak and console.
-CIRCUIT DIAGRAM
+## CIRCUIT DIAGRAM
 Connect the PIR sensor Vcc to any +5V.
 Connect the PIR sensor GND to any GND.
 Connect the PIR sensor OUT to any one GPIO. 
 
-Experiment 3A
+
+
+
+
 ## PROGRAM (Python)
+### Experiment 3A
 ```
 
+import RPi.GPIO as GPIO
+import time
+import requests
 
- 
+# ThingSpeak settings
+API_KEY = "22Q3A8TKVUCCLO7S"
+THINGSPEAK_URL = "https://api.thingspeak.com/update"
+
+# GPIO pins
+TRIG = 18
+ECHO = 23
+
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(TRIG, GPIO.OUT)
+GPIO.setup(ECHO, GPIO.IN)
+
+def get_distance():
+    GPIO.output(TRIG, False)
+    time.sleep(0.5)
+
+    # Trigger pulse
+    GPIO.output(TRIG, True)
+    time.sleep(0.00001)
+    GPIO.output(TRIG, False)
+
+    while GPIO.input(ECHO) == 0:
+        pulse_start = time.time()
+
+    while GPIO.input(ECHO) == 1:
+        pulse_end = time.time()
+
+    pulse_duration = pulse_end - pulse_start
+    distance = pulse_duration * 17150
+    distance = round(distance, 2)
+
+    return distance
+
+try:
+    while True:
+        distance = get_distance()
+
+        # Console output
+        print("distance =", distance, "cm")
+
+        # Text message for ThingSpeak
+        status_text = f"distance = {distance} cm"
+
+        # Send data to ThingSpeak
+        payload = {
+            "api_key": API_KEY,
+            "field1": distance,   # numeric for chart
+            "status": status_text # text message
+        }
+
+        response = requests.get(THINGSPEAK_URL, params=payload)
+        print("Sent to ThingSpeak")
+
+        time.sleep(15)
+
+except KeyboardInterrupt:
+    GPIO.cleanup()
+
+```
+
+### Experiment 3B
+
+```
+import RPi.GPIO as GPIO
+import time
+import requests
+
+# ---------- ThingSpeak Details ----------
+CHANNEL_ID = "3261139"
+WRITE_API_KEY = "Z436C9E4G2B8I5Q1"
+THINGSPEAK_URL = "https://api.thingspeak.com/update"
+
+# ---------- PIR Setup ----------
+PIR_PIN = 23   # GPIO17
+
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(PIR_PIN, GPIO.IN)
+
+print("PIR Sensor Initializing...")
+time.sleep(2)
+print("System Ready. Monitoring Motion...")
+
+def send_to_thingspeak(value):
+    payload = {
+        "api_key": WRITE_API_KEY,
+        "field1": value
+    }
+    try:
+        requests.get(THINGSPEAK_URL, params=payload)
+        print("Data sent to ThingSpeak:", value)
+    except:
+        print("Error sending data")
+
+try:
+    while True:
+        motion = GPIO.input(PIR_PIN)
+
+        if motion == 1:
+            print("Motion Detected!")
+            send_to_thingspeak(1)   # 1 = Motion
+            time.sleep(15)          # ThingSpeak update delay
+
+        else:
+            print("No Motion")
+            send_to_thingspeak(0)   # 0 = No motion
+            time.sleep(15)
+
+except KeyboardInterrupt:
+    print("Program Stopped")
+    GPIO.cleanup()
+```
+### OUPUT
+
+### Experiment 3A
+![WhatsApp Image 2026-02-13 at 7 49 31 PM](https://github.com/user-attachments/assets/8cc2a100-9e3b-4509-8246-d0fc597075e6)
+
+![WhatsApp Image 2026-02-14 at 8 41 54 AM](https://github.com/user-attachments/assets/1dd020c1-ce2a-4588-9c6e-11f8261bea3f)
+
+<img width="1810" height="870" alt="Screenshot 2026-02-12 141826" src="https://github.com/user-attachments/assets/6702d4da-b5db-469e-9f0b-2f1d71e7defe" />
 
 
+### Experiment 3B
+![WhatsApp Image 2026-02-13 at 7 49 32 PM](https://github.com/user-attachments/assets/fdc9ce78-13a1-419a-b537-e5d175f56e6f)
 
- 
-````
+![WhatsApp Image 2026-02-14 at 8 41 54 AM (1)](https://github.com/user-attachments/assets/f7b93a4a-8ca4-4124-ba1f-071e24ffc864)
 
-### OUPUT  
-Experiment 1A
+<img width="1893" height="891" alt="Screenshot 2026-02-12 143218" src="https://github.com/user-attachments/assets/e4c7fdcc-32e2-42f5-8920-a6fca9c1d8be" />
 
-# FIGURE -02 ADD TITILE HERE 
-
-#  FIGURE -03 ADD TITILE HERE 
-
-# FIGURE -04 ADD TITLE HERE 
-
-Experiment 3B
-
-# FIGURE -05 ADD TITILE HERE 
-
-#  FIGURE -06 ADD TITILE HERE 
-
-# FIGURE -07 ADD TITLE HERE 
+<img width="1897" height="892" alt="Screenshot 2026-02-12 143234" src="https://github.com/user-attachments/assets/dd3f659d-7c15-46f5-bb88-bd77e365f77a" />
 
  
 ## RESULTS
