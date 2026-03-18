@@ -65,7 +65,7 @@ Connect the PIR sensor OUT to any one GPIO.
 
 ## PROGRAM (Python)
 ### Experiment 3A
-```
+```python
 
 import RPi.GPIO as GPIO
 import time
@@ -133,7 +133,7 @@ except KeyboardInterrupt:
 
 ### Experiment 3B
 
-```
+```python
 import RPi.GPIO as GPIO
 import time
 import requests
